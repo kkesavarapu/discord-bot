@@ -4,3 +4,4 @@ build
 
 # Ignore operational artifacts
 *.lock
+package-lock.json

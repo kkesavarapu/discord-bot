@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
-    "start": "webpack && node ./build/app.bundle.js"
+    "start": "node ./build/app.bundle.js",
+    "heroku-postbuild": "npm install -g webpack && webpack"
   },
   "dependencies": {
     "babel-core": "^6.26.0",

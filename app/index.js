@@ -23,7 +23,7 @@ client.on('message', message => {
 
     // Temporary: Be randomly idle
     let index = Math.floor(Math.random() * responses.idle.length)
-    message.channel.send('`' + responses.idle[index] + '`')
+    message.channel.send(responses.idle[index])
 
     logger.debug(
         message.author.username,

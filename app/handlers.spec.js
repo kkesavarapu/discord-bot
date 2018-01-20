@@ -1,6 +1,7 @@
+import commands from './commands'
 import handlers from './handlers'
-import logger from './concerns/logging'
-import parse from './config/parsing'
+import logger from './blocks/logging'
+import config from './config/config'
 
 describe('onReady Handler', () => {
     it('logs the event', () => {
@@ -20,30 +21,18 @@ describe('onReady Handler', () => {
 })
 
 describe('onMessage Handler', () => {
-    it('does not process non-command messages', () => {
-        // Configure the context for running the test
-        logger.debug = jest.fn()
-        const client = {}
-        const message = {
-            content: 'command input input',
-            author: { username: 'user' },
-            channel: { name: 'channel', send: jest.fn() }
-        }
-        const handler = handlers.onMessage(client)
-
-        // Execute the action under test
-        handler(message)
-
-        // Verify the behavior and result
-        expect(logger.debug.mock.calls.length).toBe(0)
-    })
 
     it('does process command messages', () => {
-        // Configure the context for running the test
+        // Establish mocks for all the commands
         logger.debug = jest.fn()
+        for (let c in commands) {
+            commands[c] = jest.fn()
+        }
+
+        // Establish the test data
         const client = {}
         const message = {
-            content: parse.prefix + 'command input input',
+            content: config.prefix + 'command a b',
             author: { username: 'user' },
             channel: { name: 'channel', send: jest.fn() }
         }
@@ -52,8 +41,93 @@ describe('onMessage Handler', () => {
         // Execute the action under test
         handler(message)
 
-        // Verify the behavior and result
-        expect(message.channel.send.mock.calls.length).toBe(1)
+        // Verify that each of the mocks was invoked with the appropriate arguments
+        for (let c in commands) {
+            expect(commands[c].mock.calls.length).toBe(1)
+            expect(commands[c].mock.calls[0][0]).toEqual(client)
+            expect(commands[c].mock.calls[0][1]).toEqual(message)
+            expect(commands[c].mock.calls[0][2]).toEqual('command')
+            expect(commands[c].mock.calls[0][3]).toEqual(['a', 'b'])
+        }
+    })
+
+    it('does process command in lower case', () => {
+        // Establish mocks for all the commands
+        logger.debug = jest.fn()
+        for (let c in commands) {
+            commands[c] = jest.fn()
+        }
+
+        // Establish the test data
+        const client = {}
+        const message = {
+            content: config.prefix + 'CoMmAnD A b',
+            author: { username: 'user' },
+            channel: { name: 'channel', send: jest.fn() }
+        }
+        const handler = handlers.onMessage(client)
+
+        // Execute the action under test
+        handler(message)
+
+        // Verify that each of the mocks was invoked with the appropriate arguments
+        for (let c in commands) {
+            expect(commands[c].mock.calls.length).toBe(1)
+            expect(commands[c].mock.calls[0][0]).toEqual(client)
+            expect(commands[c].mock.calls[0][1]).toEqual(message)
+            expect(commands[c].mock.calls[0][2]).toEqual('command')
+            expect(commands[c].mock.calls[0][3]).toEqual(['A', 'b'])
+        }
+    })
+
+    it('does not process non-command messages', () => {
+        // Establish mocks for all the commands
+        logger.debug = jest.fn()
+        for (let c in commands) {
+            commands[c] = jest.fn()
+        }
+
+        // Establish the test data
+        const client = {}
+        const message = {
+            content: 'command a b',
+            author: { username: 'user' },
+            channel: { name: 'channel', send: jest.fn() }
+        }
+        const handler = handlers.onMessage(client)
+
+        // Execute the action under test
+        handler(message)
+
+        // Verify that each of the mocks was invoked with the appropriate arguments
+        for (let c in commands) {
+            expect(commands[c].mock.calls.length).toBe(0)
+        }
+    })
+
+    it('does not process command messages from bots', () => {
+        // Establish mocks for all the commands
+        logger.debug = jest.fn()
+        for (let c in commands) {
+            commands[c] = jest.fn()
+        }
+
+        // Establish the test data
+        const client = {}
+        const message = {
+            content: 'command a b',
+            author: { username: 'user', bot: true },
+            channel: { name: 'channel', send: jest.fn() }
+        }
+        const handler = handlers.onMessage(client)
+
+        // Execute the action under test
+        handler(message)
+
+        // Verify that each of the mocks was invoked with the appropriate arguments
+        for (let c in commands) {
+            expect(commands[c].mock.calls.length).toBe(0)
+        }
     })
 
     it('logs the event', () => {
@@ -61,7 +135,7 @@ describe('onMessage Handler', () => {
         logger.debug = jest.fn()
         const client = {}
         const message = {
-            content: parse.prefix + 'command input input',
+            content: config.prefix + 'command a b',
             author: { username: 'user' },
             channel: { name: 'channel', send: jest.fn() }
         }
@@ -77,7 +151,7 @@ describe('onMessage Handler', () => {
             author: message.author.username,
             channel: message.channel.name,
             command: 'command',
-            input: 'input input'
+            args: ['a', 'b']
         })
     })
 })

@@ -4,21 +4,22 @@
   "main": "./app/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "webpack",
+    "build": "babel app -d build",
     "test": "jest",
-    "start": "node ./build/app.bundle.js",
-    "heroku-postbuild": "npm install -g webpack && webpack"
-  },
-  "dependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.1",
-    "discord.js": "^11.3.0",
-    "webpack": "^3.10.0",
-    "winston": "^2.4.0"
+    "start": "nodemon ./app/index.js --exec babel-node",
+    "start-prod": "node /build/index.js",
+    "heroku-postbuild": "npm install --only=dev && npm build"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
     "babel-jest": "^22.1.0",
-    "jest": "^22.1.4"
+    "babel-preset-env": "^1.6.1",
+    "jest": "^22.1.4",
+    "nodemon": "^1.14.11"
+  },
+  "dependencies": {
+    "discord.js": "^11.3.0",
+    "winston": "^2.4.0"
   }
 }

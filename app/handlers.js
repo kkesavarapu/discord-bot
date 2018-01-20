@@ -1,5 +1,6 @@
-import logger from './concerns/logging'
-import parse from './config/parsing'
+import commands from './commands'
+import logger from './blocks/logging'
+import config from './config/config'
 import responses from './config/responses'
 
 // Handler for event indicating that a connection has been established and the
@@ -16,24 +17,29 @@ export const onReady = (client) => () => {
 export const onMessage = (client) => (message) => {
     // Ensure that the message the event is responding to is valid and a
     // command. If it isn't, then do not proceed any further
-    if (!message || message.content.charAt(0) !== parse.prefix) return
+    if (!message || message.content.charAt(0) !== config.prefix) return
 
-    // Tokenize message against structure [command][seperator][input]
-    let content = message.content
-    let command = content.split(parse.seperator)[0].substr(1)
-    let input = content.substr(command.length + parse.seperator.length + 1)
+    // Only respond to users that are human to avoid going into loops of
+    // discussions with bots posting commands to each other
+    if (message.author.bot) return
 
-    // Temporary: Be randomly idle
-    // TODO: Evaluate the message against all the commands
-    let index = Math.floor(Math.random() * responses.idle.length)
-    message.channel.send(responses.idle[index])
-
+    // Tokenize message against structure [prefix][command] [arg] [arg]..
+    let tokens = message.content.slice(config.prefix.length).trim().split(' ')
+    const command = tokens.shift().toLowerCase()
+    const args = [...tokens]
+    
     logger.debug('Message recognized as a command', {
         author: message.author.username,
         channel: message.channel.name,
         command: command,
-        input: input
+        args: args
     })
+
+    // Broadcast the message through every command and let them decide how
+    // to handle it (if at all)
+    for (let c in commands) {
+        commands[c](client, message, command, args)
+    }
 }
 
 export default {

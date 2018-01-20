@@ -1,7 +1,7 @@
 import Discord from 'discord.js'
-import auth from './config/authentication'
 import handlers from './handlers'
-import error from './concerns/errors'
+import commands from './commands'
+import error from './blocks/error-handling'
 
 const client = new Discord.Client()
 
@@ -11,4 +11,4 @@ client.on('message', handlers.onMessage(client))
 
 // Login into discord with an identity established by the oauth token
 // This is the entry to the application
-client.login(auth.token).catch(error('Login Failed'))
+client.login(process.env.DISCORD_BOT_TOKEN)

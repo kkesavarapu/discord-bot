@@ -115,7 +115,7 @@ describe('onMessage Handler', () => {
         // Establish the test data
         const client = {}
         const message = {
-            content: 'command a b',
+            content: '.command a b',
             author: { username: 'user', bot: true },
             channel: { name: 'channel', send: jest.fn() }
         }

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "babel app -d build",
     "test": "jest",
+    "cover": "jest --coverage",
     "start": "nodemon ./app/index.js --exec babel-node",
     "start-prod": "node /build/index.js",
     "heroku-postbuild": "npm install --only=dev && npm build"

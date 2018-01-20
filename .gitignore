@@ -1,6 +1,7 @@
 # Ignore build artifacts
 node_modules
 build
+coverage
 
 # Ignore operational artifacts
 *.lock
